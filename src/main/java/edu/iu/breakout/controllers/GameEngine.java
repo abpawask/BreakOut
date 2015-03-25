@@ -26,22 +26,21 @@ import edu.iu.breakout.views.GamePanel;
 
 public class GameEngine implements Runnable {
 
-	BreakoutView breakOutView;
-	ControlPanel controlPanel;
-	JPanel gamePanel;
+	private BreakoutView breakOutView;
+	private ControlPanel controlPanel;
+	private JPanel gamePanel;
 
-	PaddleController paddleController;
-	CollisionController collisionController;
+	private PaddleController paddleController;
+	private CollisionController collisionController;
 
-	CommandInvoker commandInvoker;
+	private CommandInvoker commandInvoker;
 
-	Paddle paddle;
-	Ball ball;
-	Brick[] bricks;
-
-	Timer timer;
-	Thread gameThread;
-	Thread replayThread;
+	private Paddle paddle;
+	private Ball ball;
+	private Brick[] bricks;
+	
+	private Thread gameThread;
+	private Thread replayThread;
 
 	boolean runGame;
 
@@ -103,24 +102,14 @@ public class GameEngine implements Runnable {
 	}
 
 	public void startGame() {
-		// timer = new Timer();
-		// timer.scheduleAtFixedRate(new SchedulerTask(), 1000, 25);
+		
 		paddleController.setFocus();
 		runGame = true;
 
 		gameThread = new Thread(this);
 		gameThread.start();
 	}
-
-	class SchedulerTask extends TimerTask {
-
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
-			// System.out.println("Game Running");
-		}
-
-	}
+	
 
 	private void initModels() {
 		paddle = new Paddle();
