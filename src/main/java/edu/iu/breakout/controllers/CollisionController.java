@@ -1,5 +1,7 @@
 package edu.iu.breakout.controllers;
 
+import edu.iu.breakout.commands.CommandInvoker;
+import edu.iu.breakout.commands.DestroyBrickCommand;
 import edu.iu.breakout.model.Ball;
 import edu.iu.breakout.model.Brick;
 import edu.iu.breakout.model.Paddle;
@@ -11,13 +13,17 @@ public class CollisionController {
 	private Paddle paddle;
 
 	private Brick[] bricks;
+	
+	private CommandInvoker commandInvoker;
 
 	private void handleCollisionBetweenBallAndBrick() {
 
 		for (int i = 0; i < bricks.length; i++) {
 			if (!bricks[i].isDestroyed()) {
 				if (ball.getBoundary().intersects(bricks[i].getBoundary())) {
-					bricks[i].setDestroyed(true);
+					
+					DestroyBrickCommand destroyBrickCommand = new DestroyBrickCommand(bricks[i]);
+					commandInvoker.execute(destroyBrickCommand);					
 				}
 			}
 		}
@@ -65,6 +71,10 @@ public class CollisionController {
 
 	public void setBricks(Brick[] bricks) {
 		this.bricks = bricks;
+	}
+
+	public void setCommandInvoker(CommandInvoker commandInvoker) {
+		this.commandInvoker = commandInvoker;
 	}
 
 }
