@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 public class CommandInvoker {
 	
-	LinkedList<Command> commands;
+	private LinkedList<Command> commands;
 	
 	public CommandInvoker(){
 		commands = new LinkedList<Command>();
@@ -19,15 +19,19 @@ public class CommandInvoker {
 	
 	public void undo(){
 		
-		Command lastCommand = commands.removeLast();
-		
-		if(lastCommand != null){
-			lastCommand.undo();
-		}
+		if(!commands.isEmpty()){
+			Command lastCommand = commands.removeLast();
+			
+			if(lastCommand != null){
+				lastCommand.undo();
+			}
+		}		
 	}
 	
 	public void replay(Command command){
-		command.undo();
+		if(command!=null){
+			command.replay();
+		}
 	}
 
 	public LinkedList<Command> getCommands() {

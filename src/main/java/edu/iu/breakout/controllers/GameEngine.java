@@ -24,28 +24,28 @@ import edu.iu.breakout.views.BreakoutView;
 import edu.iu.breakout.views.ControlPanel;
 import edu.iu.breakout.views.GamePanel;
 
-public class GameEngine implements Runnable{
-	
+public class GameEngine implements Runnable {
+
 	BreakoutView breakOutView;
 	ControlPanel controlPanel;
 	JPanel gamePanel;
-	
-	PaddleController paddleController;	
+
+	PaddleController paddleController;
 	CollisionController collisionController;
-	
+
 	CommandInvoker commandInvoker;
-	
+
 	Paddle paddle;
 	Ball ball;
 	Brick[] bricks;
-	
-	Timer timer;	
+
+	Timer timer;
 	Thread gameThread;
 	Thread replayThread;
-	
+
 	boolean runGame;
-	
-	public GameEngine(){
+
+	public GameEngine() {
 		commandInvoker = new CommandInvoker();
 	}
 
@@ -56,179 +56,195 @@ public class GameEngine implements Runnable{
 	public void setBreakOutView(BreakoutView breakOutView) {
 		this.breakOutView = breakOutView;
 	}
-	
-	public void initGame(){		
+
+	public void initGame() {
 		initModels();
 		initViews();
 		breakOutView.setVisible(true);
-		
-		paddleController = new PaddleController( paddle ,gamePanel);
+
+		paddleController = new PaddleController(paddle, gamePanel);
 		collisionController = new CollisionController();
+		collisionController.setCommandInvoker(commandInvoker);
 		collisionController.setBall(ball);
 		collisionController.setPaddle(paddle);
 		collisionController.setBricks(bricks);
-		
+
 		JButton startButton = controlPanel.getStartButton();
 		startButton.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {				
+
+			public void actionPerformed(ActionEvent e) {
 				startGame();
 			}
 		});
-		
+
 		JButton pauseButton = controlPanel.getPauseButton();
 		pauseButton.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {				
-				runGame = false;				
+
+			public void actionPerformed(ActionEvent e) {
+				runGame = false;
 			}
 		});
-		
+
 		JButton undoButton = controlPanel.getUndoButton();
 		undoButton.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {				
-				performUndo();				
+
+			public void actionPerformed(ActionEvent e) {
+				performUndo();
 			}
 		});
-		
+
 		JButton replayButton = controlPanel.getReplayButton();
 		replayButton.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {				
-				startReplay();				
+
+			public void actionPerformed(ActionEvent e) {
+				startReplay();
 			}
-		});		
+		});
 	}
-	
-	public void startGame(){				
-		//timer = new Timer();
-        //timer.scheduleAtFixedRate(new SchedulerTask(), 1000, 25);        
-		paddleController.setFocus();		
+
+	public void startGame() {
+		// timer = new Timer();
+		// timer.scheduleAtFixedRate(new SchedulerTask(), 1000, 25);
+		paddleController.setFocus();
 		runGame = true;
-		
-		if(gameThread == null){
-			gameThread = new Thread(this);
-		}        
-        gameThread.start();
+
+		gameThread = new Thread(this);
+		gameThread.start();
 	}
-	
-	class SchedulerTask extends TimerTask{
+
+	class SchedulerTask extends TimerTask {
 
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			//System.out.println("Game Running");
+			// System.out.println("Game Running");
 		}
-		
+
 	}
-	
-	private void initModels(){
+
+	private void initModels() {
 		paddle = new Paddle();
-		paddle.setX(150);
-		paddle.setY(300);
 		
-		ball = new Ball();
-		ball.setX(140);
-		ball.setY(160);
-		
-		
+		ball = new Ball();		
+
 		bricks = new Brick[4];
+		bricks[0] = new Brick();
+		bricks[1] = new Brick();
+		bricks[2] = new Brick();
+		bricks[3] = new Brick();
 		
-		bricks[0] = new Brick(20, 40);
-		
-		bricks[1] = new Brick(120, 40);
-		
-		bricks[2] = new Brick( 20, 70);
-		
-		bricks[3] = new Brick(120, 70);		
+		resetSprites();
 	}
-	
-	private void initViews(){
+
+	private void initViews() {
 		GamePanel gamePanel = new GamePanel();
-		
+
 		List<Sprite> sprites = new ArrayList<Sprite>();
 		sprites.add(paddle);
 		sprites.add(ball);
-		
-		for(int i=0; i< bricks.length;i++){
+
+		for (int i = 0; i < bricks.length; i++) {
 			sprites.add(bricks[i]);
 		}
-		
-		gamePanel.setSprites(sprites);		
-		this.gamePanel = gamePanel;		
-		
-		controlPanel = new ControlPanel();		
-		
+
+		gamePanel.setSprites(sprites);
+		this.gamePanel = gamePanel;
+
+		controlPanel = new ControlPanel();
+
 		BorderLayout gameFrameLayout = new BorderLayout();
 		gameFrameLayout.setVgap(5);
-		
-		Container contentPane =  breakOutView.getContentPane();
-		contentPane.setLayout(gameFrameLayout);			
+
+		Container contentPane = breakOutView.getContentPane();
+		contentPane.setLayout(gameFrameLayout);
 		contentPane.add(gamePanel, BorderLayout.NORTH);
-		contentPane.add(controlPanel, BorderLayout.CENTER);		
+		contentPane.add(controlPanel, BorderLayout.CENTER);
 	}
 	
-	private void checkCollision(){
+	private void resetSprites(){
+		paddle.setX(150);
+		paddle.setY(300);
+		
+		ball.setX(140);
+		ball.setY(160);
+		
+		bricks[0].setX(20);
+		bricks[0].setY(40);		
+		bricks[0].setDestroyed(false);
+		
+		bricks[1].setX(120);
+		bricks[1].setY(40);		
+		bricks[1].setDestroyed(false);
+		
+		bricks[2].setX(20);
+		bricks[2].setY(70);		
+		bricks[2].setDestroyed(false);
+		
+		bricks[3].setX(120);
+		bricks[3].setY(70);
+		bricks[3].setDestroyed(false);
+	}
+
+	private void checkCollision() {
 		collisionController.handleCollision();
 	}
-	
-	private void performUndo(){
+
+	private void performUndo() {
 		commandInvoker.undo();
 		gamePanel.repaint();
 	}
-	
-	private void startReplay(){
-		
-		if(replayThread == null){
-			replayThread = new Thread(new Runnable(){
 
-				public void run() {					
-					performReplay();
-				}
-				
-			});
-		}
-		
+	private void startReplay() {
+
+		replayThread = new Thread(new Runnable() {
+
+			public void run() {
+				performReplay();
+			}
+
+		});
+
 		replayThread.start();
 	}
-	
-	private void performReplay(){
+
+	private void performReplay() {
 		
+		resetSprites();
 		LinkedList<Command> commands = commandInvoker.getCommands();
-		
-		for(Command command: commands){
-			commandInvoker.replay(command);;
+
+		for (Command command : commands) {
+			commandInvoker.replay(command);			
 			gamePanel.repaint();
-			
+
 			try {
 				Thread.sleep(20);
-			} catch (InterruptedException e) {				
+			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
 	public void run() {
-			
-		while(runGame){
-			
+
+		while (runGame) {
+
 			checkCollision();
-						
-			UpdateSpriteCommand updateBallCommand = new UpdateSpriteCommand(ball);			
-			commandInvoker.execute(updateBallCommand);			
-			
-			UpdateSpriteCommand updatePaddleCommand = new UpdateSpriteCommand(paddle);
-			commandInvoker.execute(updatePaddleCommand);	
-			
-			gamePanel.repaint();			
+
+			UpdateSpriteCommand updateBallCommand = new UpdateSpriteCommand(
+					ball);
+			commandInvoker.execute(updateBallCommand);
+
+			UpdateSpriteCommand updatePaddleCommand = new UpdateSpriteCommand(
+					paddle);
+			commandInvoker.execute(updatePaddleCommand);
+
+			gamePanel.repaint();
 			try {
 				Thread.sleep(20);
-			} catch (InterruptedException e) {				
+			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-		
 
 	}
 }

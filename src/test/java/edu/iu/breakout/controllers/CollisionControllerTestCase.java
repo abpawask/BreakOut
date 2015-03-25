@@ -1,11 +1,14 @@
 package edu.iu.breakout.controllers;
 
-import static org.junit.Assert.fail;
 import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 
+import edu.iu.breakout.commands.Command;
+import edu.iu.breakout.commands.CommandInvoker;
 import edu.iu.breakout.model.Ball;
 import edu.iu.breakout.model.Brick;
 import edu.iu.breakout.model.Paddle;
@@ -20,6 +23,8 @@ public class CollisionControllerTestCase {
 	
 	private Brick[] bricks;
 	
+	private CommandInvoker commandInvoker;
+	
 	@Before
 	public void setUp() throws Exception {
 		
@@ -31,10 +36,13 @@ public class CollisionControllerTestCase {
 			bricks[i] = new Brick();
 		}
 		
+		commandInvoker = Mockito.mock(CommandInvoker.class);
+		
 		collisionController = new CollisionController();
 		collisionController.setBall(ball);
 		collisionController.setPaddle(paddle);
 		collisionController.setBricks(bricks);
+		collisionController.setCommandInvoker(commandInvoker);
 	}
 
 	@Test
@@ -54,7 +62,9 @@ public class CollisionControllerTestCase {
 		
 		collisionController.handleCollision();
 		
-		Assert.assertTrue(destroyedBrick.isDestroyed());
+		Mockito.verify(commandInvoker, Mockito.times(1)).execute(Matchers.any(Command.class));
+		
+		
 		Assert.assertFalse(undestroyedBrick.isDestroyed());		
 	}
 	

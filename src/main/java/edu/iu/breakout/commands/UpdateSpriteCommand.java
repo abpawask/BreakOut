@@ -1,15 +1,18 @@
 package edu.iu.breakout.commands;
 
-import edu.iu.breakout.model.Paddle;
 import edu.iu.breakout.model.Sprite;
 
 public class UpdateSpriteCommand implements Command {
 	
-	Sprite sprite;
+	private Sprite sprite;
 	
-	int oldX;
+	private int oldX;
 	
-	int oldY;
+	private int oldY;
+	
+	private int currentX;
+	
+	private int currentY;
 	
 	public UpdateSpriteCommand(Sprite sprite){
 		this.sprite = sprite;
@@ -20,12 +23,20 @@ public class UpdateSpriteCommand implements Command {
 	public void execute() {
 		// TODO Auto-generated method stub
 		sprite.move();
+		currentX = sprite.getX();
+		currentY = sprite.getY();
 	}
 
 	public void undo() {
 		
 		sprite.setX(oldX);
 		sprite.setY(oldY);
+	}
+
+	public void replay() {
+		// TODO Auto-generated method stub
+		sprite.setX(currentX);
+		sprite.setY(currentY);
 	}
 
 }

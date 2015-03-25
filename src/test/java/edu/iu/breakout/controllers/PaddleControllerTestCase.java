@@ -29,12 +29,7 @@ public class PaddleControllerTestCase {
 		
 		paddleController = new PaddleController(paddle, gamePanel);
 		
-	}
-
-	@Test
-	public void test() {
-		fail("Not yet implemented");
-	}
+	}	
 	
 	@Test
 	public void testLeftKeyPress(){
